@@ -1,4 +1,4 @@
-# SLA (Service Level Agreement)
+# SLA Metadata
 ---
 
 

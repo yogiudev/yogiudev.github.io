@@ -1,3 +1,4 @@
+# SLA Short Context
 ```json
 {
   "schema_description": "This document outlines the schema for four MongoDB collections used for Service Level Agreement (SLA) management. Use this to construct aggregation pipelines.",

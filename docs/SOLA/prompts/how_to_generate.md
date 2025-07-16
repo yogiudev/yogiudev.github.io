@@ -1,3 +1,4 @@
+# Generate Queries from Metadata
 You are a senior MongoDB architect and prompt‑engineer.
 
 ## Context
