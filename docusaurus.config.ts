@@ -110,19 +110,7 @@ const config: Config = {
             },
           ],
         },
-        {
-          title: "More",
-          items: [
-            {
-              label: "Blog",
-              to: "/blog",
-            },
-            {
-              label: "GitHub",
-              href: "https://github.com/yogiudev/yogiudev.github.io/tree/main/docs",
-            },
-          ],
-        },
+       
       ],
       copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
     },
