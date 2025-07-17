@@ -3,7 +3,7 @@ sidebar_position: 1
 ---
 
 # Why SOLA ?
-
+# TO
 ### **The Problem**
 
 In enterprise environments — especially with tools like ITSM, OSS, NMS — users are overwhelmed. Not because systems lack features, but because they're buried under layers of complexity: menus, dashboards, filters, forms.

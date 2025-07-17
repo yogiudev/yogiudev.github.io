@@ -25,13 +25,90 @@ For every natural‑language question, write a matching MongoDB aggregation pipe
 Return a **single JSON array**.  
 Each element must have this shape:
 
+The filters should be dynamic using not all or them but module related
 ```jsonc
-{
-  "nl_query": "<question phrased in plain English>",
-  "description": "<one‑line purpose of the query>",
+[ {
+  "nl_query": "What is the daily SLA performance trend for {{module_id}} from {{start_date}} to {{end_date}}?",
+  "description": "Show daily breach count and compliance percentage for a given module over a custom time period.",
+  "collection": "slm_metric_data",
   "pipeline": [
-    { /* first stage */ },
-    { /* second stage */ }
-    ...
+    {
+      "comment": "STEP 1: Filter for metrics in the provided date range and module_id if available.",
+      "stage": {
+        "$match": {
+          "is_deleted": false,
+          "metric_start_time": {
+            "$gte":  "{{start_date}}" ,
+            "$lte": "{{end_date}}" 
+          },
+          "module_id": "{{module_id}}"
+        }
+      }
+    },
+    {
+      "comment": "STEP 2: Extract date part from metric_start_time.",
+      "stage": {
+        "$project": {
+          "date": {
+            "$dateToString": {
+              "format": "%Y-%m-%d",
+              "date": "$metric_start_time"
+            }
+          },
+          "is_breached": 1
+        }
+      }
+    },
+    {
+      "comment": "STEP 3: Group by date and count total vs breached.",
+      "stage": {
+        "$group": {
+          "_id": "$date",
+          "total_metrics": { "$sum": 1 },
+          "breached_count": {
+            "$sum": {
+              "$cond": [ "$is_breached", 1, 0 ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "comment": "STEP 4: Calculate compliance percentage.",
+      "stage": {
+        "$project": {
+          "_id": 0,
+          "date": "$_id",
+          "total_metrics": 1,
+          "breached_count": 1,
+          "compliance_percentage": {
+            "$cond": [
+              { "$eq": [ "$total_metrics", 0 ] },
+              0,
+              {
+                "$multiply": [
+                  {
+                    "$divide": [
+                      { "$subtract": [ "$total_metrics", "$breached_count" ] },
+                      "$total_metrics"
+                    ]
+                  },
+                  100
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "comment": "STEP 5: Sort by date ascending.",
+      "stage": {
+        "$sort": {
+          "date": 1
+        }
+      }
+    }
   ]
-}
+}]
+```
