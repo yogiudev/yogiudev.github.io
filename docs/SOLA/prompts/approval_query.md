@@ -3,27 +3,33 @@
 You are a senior MongoDB architect and prompt‑engineer.
 
 ## Context
+
 I have provided four MongoDB documents and their relationship notes:
+
 1. `approval_requests` – captures the approval flow for entities like tickets, changes, etc.
 2. `teams` – definition of approval teams, including members and structure.
 3. `staffs` – all users (approvers and requesters) and their associated details.
 4. `sequence_staffs` – represents individual approvers within each team, with sequence and delegation settings.
+5. `approval_sent_to` - represent individual to whom approval is sent
 
 These documents are **exactly as pasted** below this message.  
 Read them carefully; do not guess any additional fields.
 
 ## Task
+
 Generate a **comprehensive list of useful analytics questions** that an ops engineer, team lead, or compliance auditor might ask about this approval system.  
 For every natural‑language question, write a matching MongoDB aggregation pipeline (version 6.x syntax).
 
 ### Requirements
-* Cover at least **20** distinct questions; aim for variety (e.g., approval time, bottlenecks, delegation impact, pending count per user, etc.)
-* Use `$lookup` joins where cross‑collection data is required; minimize client‑side post‑processing.
-* Use **stage comments** (`/* … */`) to explain logic inside each pipeline.
-* Filters (e.g., `team_id`, `requested_by`, `status`, `created_at`) must be dynamic.
-* Use placeholder variables like `{{team_id}}`, `{{requested_by}}`, `{{start_date}}`, `{{end_date}}`, `{{status}}`.
+
+- Cover at least **20** distinct questions; aim for variety (e.g., approval time, bottlenecks, delegation impact, pending count per user, etc.)
+- Use `$lookup` joins where cross‑collection data is required; minimize client‑side post‑processing.
+- Use **stage comments** (`/* … */`) to explain logic inside each pipeline.
+- Filters (e.g., `team_id`, `requested_by`, `status`, `created_at`) must be dynamic.
+- Use placeholder variables like `{{team_id}}`, `{{requested_by}}`, `{{start_date}}`, `{{end_date}}`, `{{status}}`.
 
 ### Output format
+
 Return a **single JSON array**.  
 Each element must have this shape:
 
@@ -173,7 +179,7 @@ Each element must have this shape:
       }
     ]
   },
-    {
+  {
     "nl_query": "Show all request process approval requests in organization {{organization_id}}?",
     "description": "Find all approval requests related to request processes (module_id = 42) in the specified organization.",
     "collection": "approval",
@@ -318,9 +324,21 @@ Each element must have this shape:
           "$group": {
             "_id": "$module_id",
             "total_requests": { "$sum": 1 },
-            "pending": { "$sum": { "$cond": [{ "$eq": ["$overall_approval_state", 0] }, 1, 0] } },
-            "approved": { "$sum": { "$cond": [{ "$eq": ["$overall_approval_state", 1] }, 1, 0] } },
-            "rejected": { "$sum": { "$cond": [{ "$eq": ["$overall_approval_state", 2] }, 1, 0] } }
+            "pending": {
+              "$sum": {
+                "$cond": [{ "$eq": ["$overall_approval_state", 0] }, 1, 0]
+              }
+            },
+            "approved": {
+              "$sum": {
+                "$cond": [{ "$eq": ["$overall_approval_state", 1] }, 1, 0]
+              }
+            },
+            "rejected": {
+              "$sum": {
+                "$cond": [{ "$eq": ["$overall_approval_state", 2] }, 1, 0]
+              }
+            }
           }
         }
       }
@@ -339,7 +357,15 @@ Each element must have this shape:
             "overall_approval_state": 0,
             "is_active": true,
             "is_deleted": false,
-            "creation_date": { "$lt": { "$dateSubtract": { "startDate": "$$NOW", "unit": "day", "amount": 7 } } }
+            "creation_date": {
+              "$lt": {
+                "$dateSubtract": {
+                  "startDate": "$$NOW",
+                  "unit": "day",
+                  "amount": 7
+                }
+              }
+            }
           }
         }
       },
@@ -353,7 +379,12 @@ Each element must have this shape:
             "ref_id": 1,
             "approval_sequence": 1,
             "creation_date": 1,
-            "days_pending": { "$divide": [{ "$subtract": ["$$NOW", "$creation_date"] }, 86400000] }
+            "days_pending": {
+              "$divide": [
+                { "$subtract": ["$$NOW", "$creation_date"] },
+                86400000
+              ]
+            }
           }
         }
       }
@@ -683,9 +714,30 @@ Each element must have this shape:
         "stage": {
           "$match": {
             "organization": "{{organization_id}}",
-            "creation_date": { 
-              "$gte": { "$dateFromString": { "dateString": { "$dateToString": { "format": "%Y-%m-%d", "date": "$$NOW" } } } },
-              "$lt": { "$dateAdd": { "startDate": { "$dateFromString": { "dateString": { "$dateToString": { "format": "%Y-%m-%d", "date": "$$NOW" } } } }, "unit": "day", "amount": 1 } }
+            "creation_date": {
+              "$gte": {
+                "$dateFromString": {
+                  "dateString": {
+                    "$dateToString": { "format": "%Y-%m-%d", "date": "$$NOW" }
+                  }
+                }
+              },
+              "$lt": {
+                "$dateAdd": {
+                  "startDate": {
+                    "$dateFromString": {
+                      "dateString": {
+                        "$dateToString": {
+                          "format": "%Y-%m-%d",
+                          "date": "$$NOW"
+                        }
+                      }
+                    }
+                  },
+                  "unit": "day",
+                  "amount": 1
+                }
+              }
             },
             "is_deleted": false
           }
@@ -729,7 +781,12 @@ Each element must have this shape:
             "total_sequences": { "$size": "$approval_sent_to" },
             "progress_percentage": {
               "$multiply": [
-                { "$divide": ["$approval_sequence", { "$size": "$approval_sent_to" }] },
+                {
+                  "$divide": [
+                    "$approval_sequence",
+                    { "$size": "$approval_sent_to" }
+                  ]
+                },
                 100
               ]
             }
@@ -851,7 +908,7 @@ Each element must have this shape:
       }
     ]
   },
-  
+
   {
     "nl_query": "Find approval requests with automated approval type in organization {{organization_id}}?",
     "description": "Retrieve all approval requests that are automated (approval_type = 2) in the specified organization.",
@@ -986,7 +1043,10 @@ Each element must have this shape:
         "stage": {
           "$match": {
             "organization": "{{organization_id}}",
-            "approval_sent_to.approved_on_behalf": { "$exists": true, "$ne": null },
+            "approval_sent_to.approved_on_behalf": {
+              "$exists": true,
+              "$ne": null
+            },
             "is_deleted": false
           }
         }
@@ -1141,8 +1201,14 @@ Each element must have this shape:
         "stage": {
           "$match": {
             "organization": "{{organization_id}}",
-            "last_updated": { 
-              "$gte": { "$dateSubtract": { "startDate": "$$NOW", "unit": "day", "amount": 7 } }
+            "last_updated": {
+              "$gte": {
+                "$dateSubtract": {
+                  "startDate": "$$NOW",
+                  "unit": "day",
+                  "amount": 7
+                }
+              }
             },
             "is_deleted": false
           }
@@ -1242,7 +1308,9 @@ Each element must have this shape:
                 "approval_request_date": { "$exists": true },
                 "$expr": {
                   "$gt": [
-                    { "$subtract": ["$approval_date", "$approval_request_date"] },
+                    {
+                      "$subtract": ["$approval_date", "$approval_request_date"]
+                    },
                     86400000
                   ]
                 }

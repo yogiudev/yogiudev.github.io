@@ -1,9 +1,9 @@
-
 # Teams Collection Metadata
 
 This document represents a Team Configuration for different modules (like incident, request, or change) within an organization. It defines team composition, approval workflows, notification mechanisms, and hierarchical approval levels.
 
 ## Collection Overview
+
 - **Collection Name**: `teams`
 - **Purpose**: Defines team structures, approval workflows, and member assignments
 - **Scope**: Cross-module team management for incidents, requests, and changes
@@ -14,213 +14,72 @@ This document represents a Team Configuration for different modules (like incide
 
 ```json
 {
-  "label": "Infraon - Teams",
-  "kind": "node",
-  "type": "teams",
-  "required": true,
-  "condition": [],
-  "show": [],
-  "named_values": {
-    "team_id": {
-      "type": "string",
-      "description": "Unique identifier for the team"
-    },
-    "name": {
-      "type": "string",
-      "description": "Name of the team"
-    },
-    "description": {
-      "type": "string",
-      "description": "Short description of the team's role or function"
-    },
-    "module_id": {
-      "type": "number",
-      "description": "Module the team is associated with (10=Incident, 42=Request, 47=Change)"
-    },
-    "module_name": {
-      "type": "string",
-      "description": "Name of the module corresponding to module_id"
-    },
-    "group_id": {
-      "type": "number",
-      "description": "Optional grouping ID (e.g., department or category reference)"
-    },
-    "group_type": {
-      "type": "string",
-      "description": "Type of grouping, such as Department, Location, or Function"
-    },
-    "staff_selection_type": {
-      "type": "string",
-      "enum": ["individual", "group"],
-      "description": "Defines how staff are assigned (individual-based or group-based)"
-    },
-    "owner": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "profile_id": { "type": "string" },
-          "email": { "type": "string" },
-          "full_name": { "type": "string" }
-        }
-      },
-      "description": "List of owners responsible for the team"
-    },
-    "staffs": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "profile_id": { "type": "string" },
-          "email": { "type": "string" },
-          "full_name": { "type": "string" }
-        }
-      },
-      "description": "List of static team members when staff selection is manual"
-    },
-    "sequence_staffs": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "sequence": { "type": "number" },
-          "approval_percent": { "type": "number" },
-          "users": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "profile_id": { "type": "string" },
-                "email": { "type": "string" },
-                "full_name": { "type": "string" }
-              }
-            }
-          }
-        }
-      },
-      "description": "Approval workflow defined by sequence with approval thresholds"
-    },
-    "level_staff": {
-      "type": "array",
-      "description": "Defines hierarchical levels of approvers (used when sequence is disabled)",
-      "items": {
-        "type": "object",
-        "properties": {
-          "expertise_id": { "type": "string" },
-          "expertise": { "type": "string" },
-          "expertGroupLevel": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "level": { "type": "string" },
-                "level_id": { "type": "number" },
-                "approval_percent": { "type": "number" },
-                "users": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "profile_id": { "type": "string" },
-                      "email": { "type": "string" },
-                      "full_name": { "type": "string" }
-                    }
-                  }
-                },
-                "notify_mail": {
-                  "type": "array",
-                  "items": { "type": "string" }
-                },
-                "notify_phone": {
-                  "type": "array",
-                  "items": { "type": "string" }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "is_approval_sequence": {
-      "type": "boolean",
-      "description": "If true, uses sequence-based approval (overrides level-based flow)"
-    },
-    "response_required": {
-      "type": "boolean",
-      "description": "Specifies whether this team is required to respond during the workflow"
-    },
-    "is_add_notify_required": {
-      "type": "boolean",
-      "description": "Whether additional notifications are to be triggered"
-    },
-    "config": {
-      "type": "object",
-      "description": "Optional assignment rule configuration for automation or policy",
-      "properties": {
-        "rule_id": { "type": "number" },
-        "rule_type": { "type": "string" },
-        "is_rule_assigned": { "type": "boolean" }
-      }
-    },
-    "organization": {
-      "type": "string",
-      "description": "Organization or tenant identifier"
-    },
-    "business_hr_profile": {
-      "type": "object",
-      "description": "Business hours profile used for SLA alignment and escalation",
-      "properties": {
-        "profile_id": { "type": "string" },
-        "name": { "type": "string" }
-      }
-    },
-    "location": {
-      "type": "object",
-      "description": "Location metadata applicable for the team",
-      "properties": {
-        "location_category": { "type": "string" },
-        "value": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
-    },
-    "tags": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Optional tags for filtering or grouping teams"
-    },
-    "asset_tags": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Tags linked to asset ownership or scope"
-    },
-    "events_thres_id": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "Linked event threshold rules for notifications or metrics"
-    },
-    "is_deleted": {
-      "type": "boolean",
-      "description": "Soft delete flag; true if team is logically removed"
-    },
-    "is_preconfigure": {
-      "type": "boolean",
-      "description": "Indicates if this is a preconfigured/system-generated team"
-    },
-    "creation_time": {
-      "type": "datetime",
-      "description": "Timestamp when the team was created"
-    },
-    "last_update_time": {
-      "type": "datetime",
-      "description": "Timestamp of the most recent update"
+  "_id": {
+    "$oid": "67802cd7031db67d6186e859"
+  },
+  "team_id": "117625570600208568320",
+  "module_id": 53,
+  "module_name": "release",
+  "group_type": "Approval",
+  "group_id": 1,
+  "name": "North CORE Product_RM",
+  "description": "North CORE Support_RM - Release and Patches",
+  "owner": [
+    {
+      "profile_id": "130675316407151890432",
+      "email": "vijay.garg@tcs.com",
+      "full_name": "Vijay Garg"
     }
-  }
+  ],
+  "staff_selection_type": "individual",
+  "is_approval_sequence": true,
+  "tags": [],
+  "staffs": [
+    {
+      "profile_id": "130675316407151890432",
+      "email": "vijay.garg@tcs.com",
+      "full_name": "Vijay Garg"
+    }
+  ],
+  "sequence_staffs": [
+    {
+      "sequence": "Sequence 1",
+      "users": [
+        {
+          "profile_id": "130675316407151890432",
+          "email": "vijay.garg@tcs.com",
+          "full_name": "Vijay Garg"
+        }
+      ]
+    }
+  ],
+  "level_staff": [],
+  "is_preconfigure": false,
+  "is_deleted": true,
+  "organization": "130633727120791048192",
+  "creation_time": {
+    "$date": "2025-01-09T20:08:55.848Z"
+  },
+  "last_update_time": {
+    "$date": "2025-01-09T20:14:40.246Z"
+  },
+  "response_required": false,
+  "approval_percentage": 10,
+  "department": "133763812983579873280",
+  "business_hr_profile": {
+    "profile_id": "130633727582231597056",
+    "name": "24*7"
+  },
+  "asset_tags": [],
+  "is_add_notify_required": false,
+  "is_demo_data": false,
+  "events_thres_id": [],
+  "location": {}
 }
 ```
 
 ## 🔑 Primary Key
+
 - `team_id` (String): Unique identifier for each team.
 
 ---
@@ -228,6 +87,7 @@ This document represents a Team Configuration for different modules (like incide
 ## 🧠 Key Concepts
 
 ### 1. **Module Association**
+
 - `module_id`: Numerical identifier for the module the team belongs to.
 - `module_name`: Human-readable name for the module.
   - Example mappings:
@@ -238,6 +98,7 @@ This document represents a Team Configuration for different modules (like incide
 ---
 
 ### 2. **Team Identity**
+
 - `name`: Name of the team.
 - `description`: Description of the team’s function or role.
 - `group_type`: Type or category of the group.
@@ -246,6 +107,7 @@ This document represents a Team Configuration for different modules (like incide
 ---
 
 ### 3. **Ownership**
+
 - `owner`: List of users who are owners or maintainers of this team.
   ```json
   [
@@ -255,6 +117,8 @@ This document represents a Team Configuration for different modules (like incide
       "full_name": "Harish"
     }
   ]
+  ```
+
 # 👥 `staffs` vs `sequence_staffs` in `teams` Collection
 
 These fields define the team members involved in approvals, actions, or notifications within a module. The choice between them depends on whether approvals are **parallel** or **sequential**.
@@ -262,10 +126,12 @@ These fields define the team members involved in approvals, actions, or notifica
 ---
 
 ## ✅ `staffs`
+
 **Used when:** `is_approval_sequence = false`  
 **Meaning:** All members listed are considered **equal-level participants**. Actions (like approvals or assignments) can be performed by **any or all**.
 
 ### 📌 Example
+
 ```json
 "staffs": [
   {
@@ -290,6 +156,7 @@ The `sequence_staffs` field defines a **step-wise (sequential)** approval or act
 ## 📘 Field: `sequence_staffs`
 
 ### ✅ Used When
+
 - `is_approval_sequence = true`
 - Approvals must follow an **ordered path**, one after another
 
@@ -320,3 +187,4 @@ The `sequence_staffs` field defines a **step-wise (sequential)** approval or act
     ]
   }
 ]
+```

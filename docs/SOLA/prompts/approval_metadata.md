@@ -115,3 +115,71 @@ This team’s sequence_staffs defines the approval path
 ## 🔑 Primary Key
 
 `approval_request_id` (string): Uniquely identifies each approval instance
+
+# Team
+
+```json
+{
+  "_id": {
+    "$oid": "67802cd7031db67d6186e859"
+  },
+  "team_id": "117625570600208568320",
+  "module_id": 53,
+  "module_name": "release",
+  "group_type": "Approval",
+  "group_id": 1,
+  "name": "North CORE Product_RM",
+  "description": "North CORE Support_RM - Release and Patches",
+  "owner": [
+    {
+      "profile_id": "130675316407151890432",
+      "email": "vijay.garg@tcs.com",
+      "full_name": "Vijay Garg"
+    }
+  ],
+  "staff_selection_type": "individual",
+  "is_approval_sequence": true,
+  "tags": [],
+  "staffs": [
+    {
+      "profile_id": "130675316407151890432",
+      "email": "vijay.garg@tcs.com",
+      "full_name": "Vijay Garg"
+    }
+  ],
+  "sequence_staffs": [
+    {
+      "sequence": "Sequence 1",
+      "users": [
+        {
+          "profile_id": "130675316407151890432",
+          "email": "vijay.garg@tcs.com",
+          "full_name": "Vijay Garg"
+        }
+      ]
+    }
+  ],
+  "level_staff": [],
+  "is_preconfigure": false,
+  "is_deleted": true,
+  "organization": "130633727120791048192",
+  "creation_time": {
+    "$date": "2025-01-09T20:08:55.848Z"
+  },
+  "last_update_time": {
+    "$date": "2025-01-09T20:14:40.246Z"
+  },
+  "response_required": false,
+  "approval_percentage": 10,
+  "department": "133763812983579873280",
+  "business_hr_profile": {
+    "profile_id": "130633727582231597056",
+    "name": "24*7"
+  },
+  "asset_tags": [],
+  "is_add_notify_required": false,
+  "is_demo_data": false,
+  "events_thres_id": [],
+  "location": {}
+}
+```
